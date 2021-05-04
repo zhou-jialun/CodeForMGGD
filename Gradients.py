@@ -36,7 +36,7 @@ Input:
 Output:
     -BGmu: numpy array, dim=p;
 """
-def BG_mus( X, mu, Sigma, beta ):
+def BG_mu( X, mu, Sigma, beta ):
     T = X.shape[0]
     p = X.shape[1]
     
@@ -124,6 +124,140 @@ def BG_beta( X, mu, Sigma, beta ):
     BGbeta = np.mean(aryGbeta,axis=0)
     return BGbeta
 """end function------------------------------------------------------------"""
+
+
+
+
+
+
+
+
+
+"""---------------------------------------------------------------------------
+Calculate the information constant of mu.
+Input:
+    -beta: float, shape parameter;
+    -p   : int, dimension of random vector;
+Output:
+    -Imu : float, value of information constant;
+"""
+def calImu( beta,p ):
+    Imu = (2*(beta-1)+p)*(p-2)*ss.gamma((p-2)/(2*beta))/\
+        (p*np.power(2,1/beta)*ss.gamma(p/(2*beta)))
+    return Imu
+"""end function------------------------------------------------------------"""
+
+"""---------------------------------------------------------------------------
+Calculate the information constants with respect to Sigma.
+Input:
+    -beta: float, shape parameter;
+    -p   : int, dimension of random vector;
+Output:
+    -I1: float, value of information constant;
+    -I2: float, value of information constant;
+"""
+def calISigma( beta, p ):
+    I1 = (p+2*beta)/(2*(p+2))
+    I2 = (beta-1)/(2*(p+2))
+    return (I1,I2)
+"""end function------------------------------------------------------------"""
+
+"""---------------------------------------------------------------------------
+Calculate the coefficient of Information gradient with respect to Sigma.
+Input:
+    -beta: float, shape parameter;
+    -p   : int, dimension of random vector;
+Output:
+    -J1: float, value of information coefficient;
+    -J2: float, value of information coefficient;
+"""
+def calJSigma( beta, p ):
+    J1 = 2*(p+2)/(p+2*beta)
+    J2 = 2/beta
+    return (J1,J2)
+"""end function------------------------------------------------------------"""
+
+"""---------------------------------------------------------------------------
+Calculate the information constant of beta.
+Input:
+    -beta: float, shape parameter;
+    -p   : int, dimension of random vector;
+Output:
+    -Ibeta: float, value of information constant; """
+def calIbeta( beta, p ):
+    part1 = 1 + np.power(p/(2*beta),2) * ss.polygamma(1, p/(2*beta))\
+            + (p/beta)*( np.log(2) + ss.polygamma(0,p/(2*beta)) )
+    part2 = (p/(2*beta)) * ( np.power(np.log(2),2) +\
+            ss.polygamma(0,1+p/(2*beta))*(np.log(4) +\
+            ss.polygamma(0,1+p/(2*beta))) + ss.polygamma(1,1+p/(2*beta)) )
+    Ibeta = (part1 + part2)/np.power(beta,2)
+    return Ibeta
+"""end function------------------------------------------------------------"""
+
+
+
+
+
+
+
+
+"""---------------------------------------------------------------------------
+Information gradient with respect to mu.
+Input:
+    -Gmu : numpy array, dim=p;
+    -Sigma: numpy array, dim=p;
+    -Imu: float, information constant;
+Output:
+    -iGmu: numpy array, dim=p; """
+def iG_mu( Gmu, Sigma, Imu ):
+    iGmu = (1/Imu) * np.dot( Sigma, Gmu )
+    return iGmu
+"""end function------------------------------------------------------------"""
+
+"""---------------------------------------------------------------------------
+Information Gradient with respect to Sigma.
+Input:
+    -GSigma: numpy array, dim=pxp;
+    -Sigma : numpy array, dim=pxp;
+    -J1 : float, information coefficient;
+    -J2 : float, information coefficient;
+Output:
+    -iGSigma: numpy array, dim=pxp; """
+def iG_Sigma( GSigma, Sigma, J1, J2 ):
+    p = Sigma.shape[0]
+    
+    G_prl = ( np.trace( npl.solve(Sigma, GSigma) )/p )*Sigma
+    G_ort = GSigma - G_prl
+    iGSigma = J1*G_ort + J2*G_prl
+    
+    return iGSigma
+"""end function------------------------------------------------------------"""
+
+"""---------------------------------------------------------------------------
+Information gradient with respect to beta.
+Input:
+    -Gbeta : float;
+    -Ibeta: float;
+Output:
+    -iGbeta: float; """
+def iG_beta( Gbeta, Ibeta ):
+    iGbeta = (1/Ibeta) * Gbeta
+    return iGbeta
+"""end function------------------------------------------------------------"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

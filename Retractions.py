@@ -52,7 +52,7 @@ Input:
 Output:
     -new_beta: float>0;
 """
-def Retbetas(beta, Ubeta):
+def RetPRN(beta, Ubeta):
     new_beta = beta*np.exp(Ubeta/beta)
     return new_beta
 """end funtion-------------------------------------------------------------"""
